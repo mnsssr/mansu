@@ -1,5 +1,5 @@
 // Принимает заказ с сайта и отправляет его вам в Telegram.
-// Токен и chat_id берутся из переменных окружения Netlify, в код их вписывать не нужно.
+// BOT_TOKEN и CHAT_ID берутся из переменных окружения Netlify, в код их вписывать не нужно.
 const esc = v => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cut = (v, n) => String(v ?? "").slice(0, n);
 
@@ -21,9 +21,9 @@ exports.handler = async (event) => {
   const text = [
     "🛍 <b>Новый заказ</b>",
     "",
-    `<b>Вещь:</b> ${esc(cut(it.brand, 60))} — ${esc(cut(it.name, 100))}`,
-    `<b>Размер:</b> ${esc(cut(it.size, 20))}`,
-    `<b>Цена:</b> ${esc(cut(it.price, 12))} ₽`,
+    `<b>Вещь:</b> ${esc(cut(it.title || it.name, 120))}`,
+    `<b>Детали:</b> ${esc(cut(it.sub, 60)) || "не указаны"}`,
+    `<b>Цена:</b> ${esc(cut(it.price, 20))}`,
     "",
     `<b>Покупатель:</b> ${esc(cut(d.name, 60))}`,
     `<b>Контакт:</b> ${esc(cut(d.contact, 80))}`,
