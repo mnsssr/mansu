@@ -78,7 +78,7 @@ $("#of").onsubmit=async e=>{
   try{
     const r=await fetch("/.netlify/functions/order",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({item:{brand:cur.brand,name:cur.name,size:cur.size,price:cur.price},name:f.get("name"),contact:f.get("contact"),addr:f.get("addr"),website:f.get("website")})});
-    if(!r.ok)throw 0;
+    if(!r.ok){alert("Ошибка: "+await r.text());throw 0}
     cur.sold=true;e.target.reset();$("#orderDlg").close();render();toast("Заказ отправлен. Продавец свяжется с вами");
   }catch(x){toast("Не удалось отправить. Попробуйте ещё раз")}
   b.disabled=false;b.textContent="Отправить заказ";
