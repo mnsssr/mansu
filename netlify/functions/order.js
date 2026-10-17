@@ -14,7 +14,8 @@ exports.handler = async (event) => {
   if (!d.name || !d.contact || !d.item) return { statusCode: 400, body: "Missing fields" };
 
   const { BOT_TOKEN, CHAT_ID } = process.env;
-  if (!BOT_TOKEN || !CHAT_ID) return { statusCode: 500, body: "Bot is not configured" };
+  if (!BOT_TOKEN) return { statusCode: 500, body: "Переменная BOT_TOKEN не найдена. Проверьте название и запустите новый деплой." };
+  if (!CHAT_ID) return { statusCode: 500, body: "Переменная CHAT_ID не найдена. Проверьте название и запустите новый деплой." };
 
   const it = d.item;
   const text = [
@@ -29,11 +30,16 @@ exports.handler = async (event) => {
     `<b>Адрес:</b> ${esc(cut(d.addr, 200)) || "не указан"}`
   ].join("\n");
 
-  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: "HTML" })
-  });
-
-  return res.ok ? { statusCode: 200, body: "ok" } : { statusCode: 502, body: "Telegram error" };
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN.trim()}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: CHAT_ID.trim(), text, parse_mode: "HTML" })
+    });
+    if (res.ok) return { statusCode: 200, body: "ok" };
+    const info = await res.json().catch(() => ({}));
+    return { statusCode: 502, body: "Telegram ответил: " + (info.description || res.status) };
+  } catch (e) {
+    return { statusCode: 502, body: "Не удалось связаться с Telegram: " + e.message };
+  }
 };
